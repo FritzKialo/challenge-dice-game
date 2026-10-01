@@ -1,28 +1,27 @@
-import { deployScript } from "../rocketh/deploy.js";
+import { deployScript, artifacts } from "../rocketh/deploy.js";
 
 export default deployScript(
   async env => {
     const diceGame = env.get("DiceGame");
     const diceGameAddress = diceGame.address;
 
-    // Uncomment to deploy RiggedRoll contract
-    // const riggedRoll = await env.deploy("RiggedRoll", {
-    //   account: env.namedAccounts.deployer,
-    //   artifact: artifacts.RiggedRoll,
-    //   args: [diceGameAddress],
-    // });
+    // Deploy RiggedRoll contract
+    const riggedRoll = await env.deploy("RiggedRoll", {
+      account: env.namedAccounts.deployer,
+      artifact: artifacts.RiggedRoll,
+      args: [diceGameAddress],
+    });
 
-    // Please replace the text "Your Address" with your own address.
-    // try {
-    //   await env.execute(riggedRoll, {
-    //     functionName: "transferOwnership",
-    //     args: ["Your Address"],
-    //     account: env.namedAccounts.deployer,
-    //   });
-    // } catch (err) {
-    //   console.log(err);
-    // }
-    void diceGameAddress;
+    // Transfer ownership to the frontend address so it can call withdraw()
+    try {
+      await env.execute(riggedRoll, {
+        functionName: "transferOwnership",
+        args: ["0x2b39f858cbd44530CFe1C34984F6242eA2C01c24"],
+        account: env.namedAccounts.deployer,
+      });
+    } catch (err) {
+      console.log(err);
+    }
   },
   { tags: ["RiggedRoll"] },
 );
